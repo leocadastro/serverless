@@ -143,7 +143,9 @@ describe('Service', () => {
       SUtils.writeFileSync(path.join(tmpDirPath, 'serverless.yml'),
         YAML.dump(serverlessYml));
 
-      const serverless = new Serverless({ servicePath: tmpDirPath });
+      const serverless = new Serverless();
+      serverless.init();
+      serverless.config.update({ servicePath: tmpDirPath });
       serviceInstance = new Service(serverless);
 
       return serviceInstance.load().then(() => {
