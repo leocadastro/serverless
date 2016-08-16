@@ -33,7 +33,7 @@ package:
 functions:
   hello:
     # Deployed Lambda name with a prefix
-    name: ${prefix}-lambdaName # You have to provide that variable in serverless.env.yml
+    name: ${env.prefix}-lambdaName
     handler: handler.hello
     memorySize: 512 # optional, default is 1024
     timeout: 10 # optional, default is 6

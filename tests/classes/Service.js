@@ -565,6 +565,41 @@ describe('Service', () => {
         .to.throw(Error);
     });
 
+    it('should throw error when referencing the entire serverless.yml file', () => {
+      const data = {
+        service: 'testService',
+        provider: 'testProvider',
+        custom: {
+          customObj: {
+            prop1: 1,
+            prop2: {
+              subProp1: 'subProp1',
+            },
+          },
+          varRef: '${self}',
+        },
+        plugins: ['testPlugin'],
+        functions: {
+          functionA: {},
+        },
+        resources: {
+          aws: {
+            resourcesProp: 'value',
+          },
+          azure: {},
+          google: {},
+        },
+        package: {
+          include: ['include-me.js'],
+          exclude: ['exclude-me.js'],
+          artifact: 'some/path/foo.zip',
+        },
+      };
+      const serviceInstance = new Service(serverless, data);
+      expect(() => serviceInstance.populate())
+        .to.throw(Error);
+    });
+
     it('should throw error when populating env vars strings as objects', () => {
       const data = {
         service: 'testService',
@@ -577,6 +612,41 @@ describe('Service', () => {
             },
           },
           envVarRef: '${env.var.subProp}',
+        },
+        plugins: ['testPlugin'],
+        functions: {
+          functionA: {},
+        },
+        resources: {
+          aws: {
+            resourcesProp: 'value',
+          },
+          azure: {},
+          google: {},
+        },
+        package: {
+          include: ['include-me.js'],
+          exclude: ['exclude-me.js'],
+          artifact: 'some/path/foo.zip',
+        },
+      };
+      const serviceInstance = new Service(serverless, data);
+      expect(() => serviceInstance.populate())
+        .to.throw(Error);
+    });
+
+    it('should throw error when populating undefined env vars', () => {
+      const data = {
+        service: 'testService',
+        provider: 'testProvider',
+        custom: {
+          customObj: {
+            prop1: 1,
+            prop2: {
+              subProp1: 'subProp1',
+            },
+          },
+          envVarRef: '${env.undefinedVar}',
         },
         plugins: ['testPlugin'],
         functions: {
@@ -651,6 +721,45 @@ describe('Service', () => {
             },
           },
           optVarRef: 'this is a string: ${opt}',
+        },
+        plugins: ['testPlugin'],
+        functions: {
+          functionA: {},
+        },
+        resources: {
+          aws: {
+            resourcesProp: 'value',
+          },
+          azure: {},
+          google: {},
+        },
+        package: {
+          include: ['include-me.js'],
+          exclude: ['exclude-me.js'],
+          artifact: 'some/path/foo.zip',
+        },
+      };
+      const options = {
+        stage: 'prod',
+        region: 'us-east-1',
+      };
+      const serviceInstance = new Service(serverless, data);
+      expect(() => serviceInstance.populate(options))
+        .to.throw(Error);
+    });
+
+    it('should throw error when populating an option that was not passed', () => {
+      const data = {
+        service: 'testService',
+        provider: 'testProvider',
+        custom: {
+          customObj: {
+            prop1: 1,
+            prop2: {
+              subProp1: 'subProp1',
+            },
+          },
+          optVarRef: 'this is a string: ${opt.unPassedOption}',
         },
         plugins: ['testPlugin'],
         functions: {
