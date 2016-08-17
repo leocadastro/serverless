@@ -461,47 +461,6 @@ describe('Service', () => {
       delete process.env.prod_arn;
     });
 
-    it('should throw an error if there is an issue in a complex nested variable references', () => {
-      const data = {
-        service: 'testService',
-        provider: {
-          name: 'aws',
-        },
-        custom: {
-          test: '${env.${opt.${self.provider}}_arn} xxx ${env.${opt.${opt.test}}_arn}',
-          selfVarRef: 'stageA',
-        },
-        plugins: ['testPlugin'],
-        functions: {
-          functionA: {},
-        },
-        resources: {
-          aws: {
-            resourcesProp: 'value',
-          },
-          azure: {},
-          google: {},
-        },
-        package: {
-          include: ['include-me.js'],
-          exclude: ['exclude-me.js'],
-          artifact: 'some/path/foo.zip',
-        },
-      };
-      const serviceInstance = new Service(serverless, data);
-      const options = {
-        stageA: 'dev',
-        stageB: 'prod',
-        test: 'stageB',
-      };
-      process.env.dev_arn = 'devArn';
-      process.env.prod_arn = 'prodArn';
-      expect(() => serviceInstance.populate(options))
-        .to.throw(Error);
-      delete process.env.dev_arn;
-      delete process.env.prod_arn;
-    });
-
     it('should populate from deep any type properties in self service', () => {
       const data = {
         service: 'testService',
@@ -865,6 +824,48 @@ describe('Service', () => {
       const serviceInstance = new Service(serverless, data);
       expect(() => serviceInstance.populate())
         .to.throw(Error);
+    });
+
+
+    it('should throw an error if there is an issue in a complex nested variable references', () => {
+      const data = {
+        service: 'testService',
+        provider: {
+          name: 'aws',
+        },
+        custom: {
+          test: '${env.${opt.${self.provider}}_arn} xxx ${env.${opt.${opt.test}}_arn}',
+          selfVarRef: 'stageA',
+        },
+        plugins: ['testPlugin'],
+        functions: {
+          functionA: {},
+        },
+        resources: {
+          aws: {
+            resourcesProp: 'value',
+          },
+          azure: {},
+          google: {},
+        },
+        package: {
+          include: ['include-me.js'],
+          exclude: ['exclude-me.js'],
+          artifact: 'some/path/foo.zip',
+        },
+      };
+      const serviceInstance = new Service(serverless, data);
+      const options = {
+        stageA: 'dev',
+        stageB: 'prod',
+        test: 'stageB',
+      };
+      process.env.dev_arn = 'devArn';
+      process.env.prod_arn = 'prodArn';
+      expect(() => serviceInstance.populate(options))
+        .to.throw(Error);
+      delete process.env.dev_arn;
+      delete process.env.prod_arn;
     });
   });
 
