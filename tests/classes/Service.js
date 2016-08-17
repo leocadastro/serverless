@@ -25,7 +25,7 @@ describe('Service', () => {
       expect(serviceInstance.defaults).to.deep.equal({
         stage: 'dev',
         region: 'us-east-1',
-        variableSyntax: '\\${([\\s\\S]+?)}',
+        variableSyntax: '\\${([a-zA-Z0-9._]+?)}',
       });
       expect(serviceInstance.custom).to.deep.equal({});
       expect(serviceInstance.plugins).to.deep.equal([]);
@@ -421,18 +421,13 @@ describe('Service', () => {
       expect(populatedService.custom.optVarRef).to.deep.equal(options);
     });
 
-    it('should populate from deep string properties in self service', () => {
+    it('should populate complex nested variable references', () => {
       const data = {
         service: 'testService',
         provider: 'testProvider',
         custom: {
-          customObj: {
-            prop1: 1,
-            prop2: {
-              subProp1: 'subProp1',
-            },
-          },
-          selfVarRef: 'this is a string: ${self.custom.customObj.prop2.subProp1}',
+          test: '${env.${opt.${self.custom.selfVarRef}}_arn} xxx ${env.${opt.${opt.test}}_arn}',
+          selfVarRef: 'stageA',
         },
         plugins: ['testPlugin'],
         functions: {
@@ -452,9 +447,59 @@ describe('Service', () => {
         },
       };
       const serviceInstance = new Service(serverless, data);
-      const populatedService = serviceInstance.populate();
-      expect(populatedService.custom.selfVarRef)
-        .to.equal('this is a string: subProp1');
+      const options = {
+        stageA: 'dev',
+        stageB: 'prod',
+        test: 'stageB',
+      };
+      process.env.dev_arn = 'devArn';
+      process.env.prod_arn = 'prodArn';
+      const populatedService = serviceInstance.populate(options);
+      expect(populatedService.custom.test)
+        .to.equal('devArn xxx prodArn');
+      delete process.env.dev_arn;
+      delete process.env.prod_arn;
+    });
+
+    it('should throw an error if there is an issue in a complex nested variable references', () => {
+      const data = {
+        service: 'testService',
+        provider: {
+          name: 'aws',
+        },
+        custom: {
+          test: '${env.${opt.${self.provider}}_arn} xxx ${env.${opt.${opt.test}}_arn}',
+          selfVarRef: 'stageA',
+        },
+        plugins: ['testPlugin'],
+        functions: {
+          functionA: {},
+        },
+        resources: {
+          aws: {
+            resourcesProp: 'value',
+          },
+          azure: {},
+          google: {},
+        },
+        package: {
+          include: ['include-me.js'],
+          exclude: ['exclude-me.js'],
+          artifact: 'some/path/foo.zip',
+        },
+      };
+      const serviceInstance = new Service(serverless, data);
+      const options = {
+        stageA: 'dev',
+        stageB: 'prod',
+        test: 'stageB',
+      };
+      process.env.dev_arn = 'devArn';
+      process.env.prod_arn = 'prodArn';
+      expect(() => serviceInstance.populate(options))
+        .to.throw(Error);
+      delete process.env.dev_arn;
+      delete process.env.prod_arn;
     });
 
     it('should populate from deep any type properties in self service', () => {
