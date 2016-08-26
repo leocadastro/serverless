@@ -1,0 +1,34 @@
+{
+  "IamPolicyLogGroup": {
+    "Type": "AWS::Logs::LogGroup",
+    "DependsOn": ["IamPolicyLambdaVpc"],
+    "Properties": {
+        "RetentionInDays": 1
+    }
+  },
+  "IamPolicyLambdaVpc": {
+    "Type": "AWS::IAM::Policy",
+    "Properties": {
+      "PolicyName": "IamPolicyLambdaVpc",
+      "PolicyDocument": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "ec2:CreateNetworkInterface",
+              "ec2:DescribeNetworkInterfaces",
+              "ec2:DeleteNetworkInterface"
+            ],
+            "Resource": "*"
+          }
+        ]
+      },
+      "Roles": [
+        {
+          "Ref": "IamRoleLambda"
+        }
+      ]
+    }
+  }
+}
