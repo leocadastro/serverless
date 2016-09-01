@@ -1,0 +1,15 @@
+{
+  "name": "aws-nodejs",
+  "version": "0.0.1",
+  "description": "This is the package.json for your Serverless application",
+  "main": "handler.js",
+  "scripts": {
+    "deploy": "serverless deploy",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "serverless"
+  ],
+  "author": "",
+  "license": "ISC"
+}
