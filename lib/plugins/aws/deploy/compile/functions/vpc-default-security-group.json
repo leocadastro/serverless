@@ -1,0 +1,25 @@
+{
+  "LambdaFunctionDefaultVpcSecurityGroup": {
+    "Type": "AWS::EC2::SecurityGroup",
+    "Properties": {
+      "GroupDescription": "Allow lambda to talk to everything",
+      "VpcId": "VpcId",
+      "SecurityGroupIngress": [
+        {
+          "IpProtocol": "tcp",
+          "FromPort": "0",
+          "ToPort": "65535",
+          "CidrIp": "0.0.0.0/0"
+        }
+      ],
+      "SecurityGroupEgress": [
+        {
+          "IpProtocol": "tcp",
+          "FromPort": "0",
+          "ToPort": "65535",
+          "CidrIp": "0.0.0.0/0"
+        }
+      ]
+    }
+  }
+}
